@@ -1,0 +1,59 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant::configure("2") do |config|
+  # All Vagrant configuration is done here. The most common configuration
+  # options are documented and commented below. For a complete reference,
+  # please see the online documentation at vagrantup.com.
+
+  # Every Vagrant virtual environment requires a box to build off of.
+
+  config.vm.box = "wheezy64"
+  config.vm.provider "virtualbox" do |vb|
+    vb.customize ["modifyvm", :id, "--memory", 2048]
+  end
+
+  config.vm.provision :puppet do |puppet|
+    puppet.manifests_path = "puppet/manifests"
+    puppet.module_path = "puppet/modules"
+    puppet.options = ['--verbose']
+  end
+  
+  config.vm.define "cassandra1" do |cassandra|
+    cassandra.vm.network "private_network", ip: "192.168.1.10"
+    cassandra.vm.host_name = "cassandra1"
+  end
+
+  config.vm.define "cassandra2" do |cassandra|
+    cassandra.vm.network "private_network", ip: "192.168.1.11"
+    cassandra.vm.host_name = "cassandra2"
+  end
+
+  config.vm.define "cassandra3" do |cassandra|
+    cassandra.vm.network "private_network", ip: "192.168.1.12"
+    cassandra.vm.host_name = "cassandra3"
+  end
+  
+  config.vm.define "cassandra4" do |cassandra|
+    cassandra.vm.network "private_network", ip: "192.168.1.13"
+    cassandra.vm.host_name = "cassandra4"
+  end
+end
+
+$cassandra_script = <<END
+  sudo apt-get update
+  sudo apt-get -y --force-yes install oracle-java7-jdk
+ 
+  cp /vagrant/apache-cassandra-1.2.15-bin.tar.gz ~ 
+  tar xvfz apache-cassandra-1.2.15-bin.tar.gz
+
+  sudo chown -R vagrant apache-cassandra*
+  cp /vagrant/cassandra/conf/* apache-cassandra-1.2.15/conf/
+  sudo ln -s apache-cassandra-1.2.15 apache-cassandra
+
+  sudo sed -i 's/127.0.0.1/192.168.1.4/' /etc/hosts
+  sudo cp /vagrant/cassandra/cassandra.init /etc/init.d/cassandra
+  sudo chmod +x /etc/init.d/cassandra
+  sudo update-rc.d cassandra defaults 99
+  sudo /etc/init.d/cassandra start
+END
