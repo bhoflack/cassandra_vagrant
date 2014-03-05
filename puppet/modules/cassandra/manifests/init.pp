@@ -43,9 +43,11 @@ class cassandra {
   service
   { 'cassandra':
     name => 'cassandra',
-    start => '/etc/init.d/cassandra',
-    stop => 'pgrep -f cassandra | xargs kill; true',
-    status => 'test `netstat -a | grep 9160 | wc -l` -ge 1',
+    ensure => running,
+    start => '/etc/init.d/cassandra start',
+    stop => '/etc/init.d/cassandra stop',
+    status => '/etc/init.d/cassandra status',
+    restart => '/etc/init.d/cassandra restart',
     enable => true,
   }
 
