@@ -39,21 +39,3 @@ Vagrant::configure("2") do |config|
     cassandra.vm.host_name = "cassandra4"
   end
 end
-
-$cassandra_script = <<END
-  sudo apt-get update
-  sudo apt-get -y --force-yes install oracle-java7-jdk
- 
-  cp /vagrant/apache-cassandra-1.2.15-bin.tar.gz ~ 
-  tar xvfz apache-cassandra-1.2.15-bin.tar.gz
-
-  sudo chown -R vagrant apache-cassandra*
-  cp /vagrant/cassandra/conf/* apache-cassandra-1.2.15/conf/
-  sudo ln -s apache-cassandra-1.2.15 apache-cassandra
-
-  sudo sed -i 's/127.0.0.1/192.168.1.4/' /etc/hosts
-  sudo cp /vagrant/cassandra/cassandra.init /etc/init.d/cassandra
-  sudo chmod +x /etc/init.d/cassandra
-  sudo update-rc.d cassandra defaults 99
-  sudo /etc/init.d/cassandra start
-END
